@@ -1,0 +1,22 @@
+#!/bin/zsh
+
+echo "*=============================================================*"
+echo "  Setting environment for RV32I project..\n"
+# Set project root
+export PROJECT_ROOT="$(pwd)"
+
+# Set subdirectories
+export SRC_DIR="$PROJECT_ROOT/src"
+export TB_DIR="$PROJECT_ROOT/tb"
+export SIM_DIR="$PROJECT_ROOT/sim"
+export SOFTWARE_DIR="$PROJECT_ROOT/software"
+
+# print status
+echo "  Environment variables set:"
+echo "  PROJECT_ROOT=$PROJECT_ROOT"
+echo "  SRC_DIR=$SRC_DIR"
+echo "  TB_DIR=$TB_DIR"
+echo "  SIM_DIR=$SIM_DIR"
+echo "  SOFTWARE_DIR=$SOFTWARE_DIR"
+echo "\n  Environment setup complete"
+echo "*=============================================================*"

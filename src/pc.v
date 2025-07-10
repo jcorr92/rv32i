@@ -6,7 +6,7 @@ module pc (
 
     always @ (posedge clk, negedge rst) begin
         if(!rst) begin
-            pc = '0;
+            pc = 0;
         end else begin
             pc <= next_pc;
         end

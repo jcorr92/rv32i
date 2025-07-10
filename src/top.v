@@ -6,10 +6,13 @@ module top(
     input [4:0]  ra0,ra1,wa,
     input        wr_en, jump
 );
+
 // Wires
 wire [31:0] pc_mux, alu_out, pc;
 wire [31:0] rs0, rs1, wdata;
 reg alu_sel = 0;
+
+
 // Module Instantiations
 
 // mem input mux
@@ -19,11 +22,11 @@ register_file f0(
     .rdata0(rs0),
     .rdata1(rs1),
     .wdata(wdata),
-    .rd_addr0(ra0), 
-    .rd_addr1(ra1), 
+    .rd_addr0(ra0),
+    .rd_addr1(ra1),
     .wr_addr(wa),
-    .clk(clk), 
-    .aresetn(rst), 
+    .clk(clk),
+    .aresetn(rst),
     .wr_en(wr_en)
 );
 
