@@ -1,22 +1,38 @@
 #!/bin/zsh
 
 echo "*=============================================================*"
-echo "  Setting environment for RV32I project..\n"
+echo "  Setting environment for RV32I project.."
+echo " "
+
 # Set project root
 export PROJECT_ROOT="$(pwd)"
 
 # Set subdirectories
+echo "  Setting up Linux environment.."
 export SRC_DIR="$PROJECT_ROOT/src"
 export TB_DIR="$PROJECT_ROOT/tb"
 export SIM_DIR="$PROJECT_ROOT/sim"
+export SCRIPT_DIR="$SIM_DIR/scripts"
 export SOFTWARE_DIR="$PROJECT_ROOT/software"
-
-# print status
+export FILELIST_DIR="$PROJECT_ROOT/filelists"
 echo "  Environment variables set:"
 echo "  PROJECT_ROOT=$PROJECT_ROOT"
 echo "  SRC_DIR=$SRC_DIR"
 echo "  TB_DIR=$TB_DIR"
 echo "  SIM_DIR=$SIM_DIR"
 echo "  SOFTWARE_DIR=$SOFTWARE_DIR"
-echo "\n  Environment setup complete"
+echo "  SOFTWARE_DIR=$SOFTWARE_DIR"
+echo " "
+
+# Vivado stuff
+echo "  Setting up Vivado environment.."
+VERSION=2024.2
+XILINX=/tools/Xilinx
+VIVADO_DIR=$XILINX/Vivado/$VERSION
+echo "  VIVADO=$VIVADO_DIR/bin"
+source $VIVADO_DIR/settings64.sh
+echo "  Vivado environment set!"
+
+echo " "
+echo "  Environment setup complete"
 echo "*=============================================================*"

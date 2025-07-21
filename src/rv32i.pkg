@@ -1,0 +1,37 @@
+package rv32i_pkg;
+
+  // Architecture
+  parameter int unsigned XLEN      = 64;      // Register Length
+  parameter int unsigned ILEN      = 32;      // Instruction Length
+  parameter int unsigned IALIGN    = 32;      // Instruction alignment in bits (32 or 16 for compressed)
+
+  // Register file
+  parameter int unsigned REG_COUNT      = 32;
+  parameter int unsigned REG_ADDR_WIDTH = $clog2(REG_COUNT);
+
+  // Program Counter
+  parameter int unsigned PC_WIDTH = XLEN;
+
+  // Instruction Memory
+  parameter int unsigned INSTR_MEM_WORDS      = 4096;
+  parameter int unsigned INSTR_MEM_ADDR_WIDTH = $clog2(INSTR_MEM_WORDS);
+  parameter int unsigned INSTR_MEM_DATA_WIDTH = 32;
+
+  // Opcode Mnemonic
+  `define OPCODE_R_TYPE      7'b0110011
+  `define OPCODE_I_TYPE_ALU  7'b0010011
+  `define OPCODE_I_TYPE_LD   7'b0000011
+  `define OPCODE_S_TYPE      7'b0100011
+  `define OPCODE_B_TYPE      7'b1100011
+  `define OPCODE_LUI         7'b0110111
+  `define OPCODE_AUIPC       7'b0010111
+  `define OPCODE_J_TYPE      7'b1101111
+  `define OPCODE_I_TYPE_JALR 7'b1100111
+  `define OPCODE_SYSTEM      7'b1110011
+  `define OPCODE_FENCE       7'b0001111
+
+  // Helper Macros
+  `define SIGN_EXTEND(val, width) {{(XLEN - width){val[width-1]}}, val[width-1:0]}
+
+
+endpackage
