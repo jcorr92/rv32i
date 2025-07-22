@@ -1,5 +1,6 @@
 module top_tb();
     import rv32i_pkg::*;
+    import tb_pkg::*;
 
     localparam clk_period = 10;
     logic [XLEN-1           :0] wdata;
@@ -18,7 +19,7 @@ module top_tb();
     .wa(wa),
     .wr_en(wr_en),
     .jump(jump)
-);
+    );
 
 initial begin
     clk = 0;
