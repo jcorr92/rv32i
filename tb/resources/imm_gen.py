@@ -1,4 +1,6 @@
 import random
+import sys
+out_path = sys.argv[1] if len(sys.argv) > 1 else "immediates.list"
 
 num_tests = 100
 
@@ -25,15 +27,14 @@ imm_width = {
     "OPCODE_J_TYPE": 21
 }
 
-
 def to_64b_hex(val):
     return f"{(val & 0xFFFFFFFFFFFFFFFF):016X}"
 
-with open ("immediates", "w") as log:
+with open (out_path, "w") as log:
     for i in range (num_tests):
         # Select random opcode
         opcode = random.choice(opcodes)
-        # Generate random signed immediate value within 21 bits (for example)
+        # Generate random signed immediate value
         bits = imm_width[opcode]
         max_val = (1 << (bits - 1)) - 1
         min_val = -(1 << (bits - 1))

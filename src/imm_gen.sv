@@ -1,8 +1,10 @@
+`timescale 1ns/1ps
+
 module imm_gen
 import rv32i_pkg::*;
 (
-    output [XLEN-1:0]imm_out,
-    input  [ILEN-1:0]instr_in
+    output reg [XLEN-1:0]imm_out,
+    input      [ILEN-1:0]instr_in
 );
 
 // Extract fields
@@ -35,6 +37,5 @@ always_comb begin
             imm_out = '0;
     endcase
 end
-
 
 endmodule

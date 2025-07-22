@@ -1,6 +1,9 @@
 # input files & env vars
 SRC     = $(SRC_DIR)
-TB      = top/top_tb.sv
+GEN_DIR = $(SIM_DIR)/gen
+IMMEDIATE_FILE = $(GEN_DIR)/immediates.list
+# TB      = top/top_tb.sv
+TB      = unit/imm_gen_tb.sv
 TB_NAME = $(basename $(notdir $(TB)))
 TB_PATH = $(TB_DIR)/$(TB)
 OUT     = $(SOFTWARE_DIR)/RV32I
@@ -9,13 +12,18 @@ export TB_FILE = $(TB)
 
 DEFINES = SIMULATION
 
-# Default target
-all: build sim wave
-
 # List all targets
 print-targets:
 	@echo "Available targets:" && \
 	awk -F':' '/^[a-zA-Z0-9_-]+:([^=]|$$)/ {print $$1}' $(MAKEFILE_LIST) | sort | uniq
+
+# Default target
+all: generate build sim
+
+# Build software payloads
+generate:
+	mkdir -p $(GEN_DIR)
+	python3 ../tb/resources/imm_gen.py $(IMMEDIATE_FILE)
 
 # Compile
 compile:
@@ -25,7 +33,7 @@ compile:
 	SIM_DIR=$(SIM_DIR) \
     xvlog -sv -d $(DEFINES) -f $(FILELIST_DIR)/filelist.f
 
-# Build
+# elab
 elab:
 	xelab -debug typical -top $(TB_NAME) -snapshot $(TB_NAME)_snapshot
 
@@ -46,5 +54,18 @@ wave:
 
 # Clean up generated files
 clean:
+# Clean up generated files
+clean:
 	rm -rf $(OUT) $(VCD) \
-	$(SIM_DIR)/.Xil $(SIM_DIR)/*.log $(SIM_DIR)/*.jou $(SIM_DIR)/xvlog.* $(SIM_DIR)/xsim.dir $(SIM_DIR)/xelab.* $(SIM_DIR)/*.wdb
+	$(SIM_DIR)/.Xil \
+	$(SIM_DIR)/*.log \
+	$(SIM_DIR)/*.jou \
+	$(SIM_DIR)/*.pb \
+	$(SIM_DIR)/*.wdb \
+	$(SIM_DIR)/xvlog.* \
+	$(SIM_DIR)/xelab.* \
+	$(SIM_DIR)/xsim.dir \
+	$(SIM_DIR)/gen \
+	$(SIM_DIR)/imm_gen_test.log \
+	$(SIM_DIR)/imm_gen_tb_snapshot.wdb
+

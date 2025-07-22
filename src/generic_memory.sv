@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module generic_memory
 import rv32i_pkg::*;
 #(

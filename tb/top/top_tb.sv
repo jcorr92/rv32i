@@ -1,8 +1,9 @@
+`timescale 1ns/1ps
+
 module top_tb();
     import rv32i_pkg::*;
     import tb_pkg::*;
 
-    localparam clk_period = 10;
     logic [XLEN-1           :0] wdata;
     logic [3                :0] alu_test;
     logic [REG_ADDR_WIDTH-1 :0] ra0, ra1, wa;
