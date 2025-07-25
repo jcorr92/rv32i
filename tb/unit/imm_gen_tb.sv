@@ -16,10 +16,16 @@ module imm_gen_tb();
     );
 
     integer logfile, test_vectors;
-    string line;
+    string line, opcode;
+    int    imm_val, x;
+    logic [63:0] expected;
 
     // drive dut
     initial begin
+        // create dump.vcd
+        $dumpfile("dump.vcd");
+        // dump module, children & grandchildren (dump all)
+        $dumpvars(2, imm_gen_tb);
         // Open a file for writing (overwrite if exists)
         logfile = $fopen("imm_gen_test.log", "w");
         test_vectors = $fopen("gen/immediates.list", "r");
@@ -29,20 +35,28 @@ module imm_gen_tb();
         end
 
         while(!$feof(test_vectors)) begin
-            void'($fgets(line, test_vectors));
-            $display(line);
+            x = $fgets(line, test_vectors);
+            // $display(line);
+            $fdisplay(logfile, "read string: %s from file", line);
+            if ($sscanf(line, "%s %d %h", opcode, imm_val, expected) == 3) begin
+                test_imm(opcode, imm_val, expected);
+            end else begin
+                $fdisplay(logfile, "Skipping invalid line: %s", line);
+                $display("WARNING: INVALID LINE DETECTED IN TEST INPUT: \n%s", line);
+            end
         end
-
-        // init
-        instr_in = 32'b0;
 
         $fclose(logfile);
         $fclose(test_vectors);
+
+        check_logs(logfile);
+
         $finish;
     end
 
     // Helper task
-    task test_imm (input string instr_type, input [ILEN-1:0] imm_val, input integer expected);
+    task test_imm (input string instr_type, input [ILEN-1:0] imm_val, input [XLEN-1:0] expected);
+        $fdisplay(logfile, "received opcode: %s, imm: %d, exp: %x from file", instr_type, $signed(imm_val), expected);
         begin
             // pack instruction from log file
             case(instr_type)
@@ -53,7 +67,7 @@ module imm_gen_tb();
                 "OPCODE_I_TYPE_JALR":
                     pkd_inst = {imm_val[11:0], 5'd1, 3'b000, 5'd2, OPCODE_I_TYPE_JALR};
                 "OPCODE_S_TYPE":
-                    pkd_inst = {imm_val[11:5], 5'd3, 5'd2, 3'b000, 5'd1, OPCODE_S_TYPE};
+                    pkd_inst = {imm_val[11:5], 5'd3, 5'd2, 3'b000, imm_val[4:0], OPCODE_S_TYPE};
                 "OPCODE_B_TYPE":
                     pkd_inst = {imm_val[12], imm_val[10:5], 5'd1, 5'd0, 3'b000, imm_val[4:1], imm_val[11], OPCODE_B_TYPE};
                 "OPCODE_LUI":
@@ -67,12 +81,14 @@ module imm_gen_tb();
             endcase
         end
         instr_in = pkd_inst;
+
+        $fdisplay(logfile, "packed instr: %b", instr_in);
         wait_cycles(1);
-        if(imm_out == expected)
-            $fdisplay(logfile, "PASS: imm val = %x, expected %x", imm_out, expected);
-        else
-            $fdisplay(logfile, "FAIL: imm val = %x, expected %x", imm_out, expected);
-
+        if(imm_out == expected) begin
+            $fdisplay(logfile, "PASS: imm val = %x, expected %x\n", imm_out, expected);
+        end else begin
+            $fdisplay(logfile, "FAIL: imm val = %x, expected %x\n", imm_out, expected);
+            $display("FAIL: imm val = %x, expected %x", imm_out, expected);
+        end
     endtask
-
 endmodule

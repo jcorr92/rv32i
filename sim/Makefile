@@ -1,8 +1,8 @@
 # input files & env vars
 SRC     = $(SRC_DIR)
 GEN_DIR = $(SIM_DIR)/gen
-IMMEDIATE_FILE = $(GEN_DIR)/immediates.list
-# TB      = top/top_tb.sv
+# IMMEDIATE_FILE = $(GEN_DIR)/immediates.list
+TB      = top/top_tb.sv
 TB      = unit/imm_gen_tb.sv
 TB_NAME = $(basename $(notdir $(TB)))
 TB_PATH = $(TB_DIR)/$(TB)
@@ -25,6 +25,9 @@ generate:
 	mkdir -p $(GEN_DIR)
 	python3 ../tb/resources/imm_gen.py $(IMMEDIATE_FILE)
 
+# Build
+build: compile elab
+
 # Compile
 compile:
 	@echo "\n ***** Running Vivado xsim with TB: $(TB_PATH) ***** \n"
@@ -36,9 +39,6 @@ compile:
 # elab
 elab:
 	xelab -debug typical -top $(TB_NAME) -snapshot $(TB_NAME)_snapshot
-
-# Build
-build: compile elab
 
 # Run simulation
 sim:
@@ -60,6 +60,7 @@ clean:
 	$(SIM_DIR)/.Xil \
 	$(SIM_DIR)/*.log \
 	$(SIM_DIR)/*.jou \
+	$(SIM_DIR)/*.str \
 	$(SIM_DIR)/*.pb \
 	$(SIM_DIR)/*.wdb \
 	$(SIM_DIR)/xvlog.* \

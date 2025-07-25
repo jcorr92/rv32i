@@ -1,8 +1,15 @@
 # Ignore generated simulation files
 */gen/
-/*.log
-/*.jou
-/*.pb
-/*.wdb
-/*.pdf
+*/*.log
+*/*.jou
+*/*.pb
+*/*.wdb
+*/*.pdf
+*/*.str
 */xsim.dir/
+*.log
+*.jou
+*.pb
+*.wdb
+*.pdf
+*.str
