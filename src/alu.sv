@@ -7,11 +7,11 @@ import rv32i_pkg::*;
     output logic             zero,
     input  signed [XLEN-1:0] src_a,
     input  signed [XLEN-1:0] src_b,
-    input         [3     :0] instr
+    input         [3     :0] alu_ctrl
 );
 
     always_comb begin
-        case (instr)
+        case (alu_ctrl)
             4'b0000: result = src_a + src_b;                                  // ADD
             4'b0001: result = src_a - src_b;                                  // SUB
             4'b0010: result = src_a & src_b;                                  // AN

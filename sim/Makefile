@@ -6,7 +6,6 @@ TB      = top/top_tb.sv
 TB      = unit/imm_gen_tb.sv
 TB_NAME = $(basename $(notdir $(TB)))
 TB_PATH = $(TB_DIR)/$(TB)
-OUT     = $(SOFTWARE_DIR)/RV32I
 VCD     = $(SIM_DIR)/dump.vcd
 export TB_FILE = $(TB)
 
@@ -54,9 +53,7 @@ wave:
 
 # Clean up generated files
 clean:
-# Clean up generated files
-clean:
-	rm -rf $(OUT) $(VCD) \
+	rm -rf $(VCD) \
 	$(SIM_DIR)/.Xil \
 	$(SIM_DIR)/*.log \
 	$(SIM_DIR)/*.jou \

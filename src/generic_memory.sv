@@ -26,6 +26,13 @@ import rv32i_pkg::*;
     input                   wr_en
 );
 
+// optional rom
+`ifdef SIMULATION
+    initial begin
+        $readmemh("rv32i_prog.hex", mem_reg);
+    end
+`endif
+
 // 32, 64-bit registers
 logic [MLEN-1:0] mem_reg [0:MEM_SIZE-1];
 

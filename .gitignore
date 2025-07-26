@@ -6,6 +6,11 @@
 */*.wdb
 */*.pdf
 */*.str
+*/*.bin
+*/*.hex
+*/*.elf
+*/*.o
+*/*.str
 */xsim.dir/
 *.log
 *.jou
@@ -13,3 +18,7 @@
 *.wdb
 *.pdf
 *.str
+*.bin
+*.hex
+*.elf
+*.o

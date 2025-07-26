@@ -1,9 +1,9 @@
 module register_file
 import rv32i_pkg::*;
 (
-    output [XLEN-1          :0] rdata0,rdata1,
+    output [XLEN-1          :0] rdata1,rdata2,
     input  [XLEN-1          :0] wdata,
-    input  [REG_ADDR_WIDTH-1:0] rd_addr0, rd_addr1, wr_addr,
+    input  [REG_ADDR_WIDTH-1:0] rd_addr1, rd_addr2, wr_addr,
     input                       clk, aresetn, wr_en
 );
 
@@ -11,8 +11,8 @@ import rv32i_pkg::*;
 logic [XLEN-1:0] gp_reg[0:REG_COUNT-1];
 
 // Asynchronous read (always return x0 from r0)
-assign rdata0 = (rd_addr0 == 0) ? '0 : gp_reg[rd_addr0];
 assign rdata1 = (rd_addr1 == 0) ? '0 : gp_reg[rd_addr1];
+assign rdata2 = (rd_addr2 == 0) ? '0 : gp_reg[rd_addr2];
 
 always @ (posedge clk, negedge aresetn) begin
     //reset logic
