@@ -1,10 +1,11 @@
 `timescale 1ns/1ps
+`default_nettype none
 
 module imm_gen
 import rv32i_pkg::*;
 (
-    output reg [XLEN-1:0]imm_out,
-    input      [ILEN-1:0]instr_in
+    output      logic [XLEN-1:0]imm_out,
+    input  wire logic [ILEN-1:0]instr_in
 );
 
 // immediate fields
@@ -25,21 +26,21 @@ always_comb begin
     // sign extension logic
     case(instr_in[6:0])
         OPCODE_I_TYPE_ALU :
-            imm_out = `SIGN_EXTEND(imm_i, 12);
+            imm_out = `sEXT(imm_i, 12);
         OPCODE_I_TYPE_LD  :
-            imm_out = `SIGN_EXTEND(imm_i, 12);
+            imm_out = `sEXT(imm_i, 12);
         OPCODE_I_TYPE_JALR:
-            imm_out = `SIGN_EXTEND(imm_i, 12);
+            imm_out = `sEXT(imm_i, 12);
         OPCODE_S_TYPE     :
-            imm_out = `SIGN_EXTEND(imm_s, 12);
+            imm_out = `sEXT(imm_s, 12);
         OPCODE_B_TYPE     :
-            imm_out = `SIGN_EXTEND(imm_b, 13);
+            imm_out = `sEXT(imm_b, 13);
         OPCODE_LUI        :
             imm_out = {32'b0, imm_u, 12'b0};
         OPCODE_AUIPC      :
             imm_out = {32'b0, imm_u, 12'b0};
         OPCODE_J_TYPE     :
-            imm_out = `SIGN_EXTEND(imm_j, 21);
+            imm_out = `sEXT(imm_j, 21);
         default:
             imm_out = '0;
     endcase

@@ -28,15 +28,14 @@ import rv32i_pkg::*;
         return 0;
     endfunction
 
-
-    function automatic void check_logs(int logfile);
+    function automatic void check_logs(string logname);
 
         string line;
         int pass = 0, fail = 0, tests;
-        int x;
+        int x, logfile;
         shortreal ratio;
 
-        logfile = $fopen("imm_gen_test.log", "r");
+        logfile = $fopen(logname, "r");
         if (!logfile) begin
             $fatal(0,  "Could not open logfile");
         end
@@ -68,8 +67,5 @@ import rv32i_pkg::*;
             $display("*                                                                 *");
             $display("*******************************************************************");
         end
-
-
     endfunction
-
 endpackage

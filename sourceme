@@ -30,6 +30,7 @@ VERSION=2024.2
 XILINX=/tools/Xilinx
 VIVADO_DIR=$XILINX/Vivado/$VERSION
 echo "  VIVADO=$VIVADO_DIR/bin"
+echo "  LD_LIBRARY_PATH=$VIVADO_DIR/tps/lnx64/jre21.0.1_12/lib/server"
 source $VIVADO_DIR/settings64.sh
 echo "  Vivado environment set!"
 

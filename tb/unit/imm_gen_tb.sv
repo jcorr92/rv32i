@@ -20,6 +20,8 @@ module imm_gen_tb();
     int    imm_val, x;
     logic [63:0] expected;
 
+    string logname = "imm_gen_test.log";
+
     // drive dut
     initial begin
         // create dump.vcd
@@ -27,7 +29,7 @@ module imm_gen_tb();
         // dump module, children & grandchildren (dump all)
         $dumpvars(2, imm_gen_tb);
         // Open a file for writing (overwrite if exists)
-        logfile = $fopen("imm_gen_test.log", "w");
+        logfile = $fopen(logname, "w");
         test_vectors = $fopen("gen/immediates.list", "r");
 
         if (!logfile || !test_vectors) begin
@@ -49,12 +51,12 @@ module imm_gen_tb();
         $fclose(logfile);
         $fclose(test_vectors);
 
-        check_logs(logfile);
+        check_logs(logname);
 
         $finish;
     end
 
-    // Helper task
+    // Helper tasks
     task test_imm (input string instr_type, input [ILEN-1:0] imm_val, input [XLEN-1:0] expected);
         $fdisplay(logfile, "received opcode: %s, imm: %d, exp: %x from file", instr_type, $signed(imm_val), expected);
         begin

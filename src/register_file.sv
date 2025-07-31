@@ -1,10 +1,13 @@
+`timescale 1ns/1ps
+`default_nettype none
+
 module register_file
 import rv32i_pkg::*;
 (
-    output [XLEN-1          :0] rdata1,rdata2,
-    input  [XLEN-1          :0] wdata,
-    input  [REG_ADDR_WIDTH-1:0] rd_addr1, rd_addr2, wr_addr,
-    input                       clk, aresetn, wr_en
+    output      logic [XLEN-1          :0] rdata1,rdata2,
+    input  wire logic [XLEN-1          :0] wdata,
+    input  wire logic [REG_ADDR_WIDTH-1:0] rd_addr1, rd_addr2, wr_addr,
+    input  wire logic                      clk, aresetn, wr_en
 );
 
 // 32, 64-bit registers

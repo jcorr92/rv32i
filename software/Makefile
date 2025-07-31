@@ -5,7 +5,7 @@ PROGS     = $(SOFTWARE_DIR)/programs
 OBJS      = $(SOFTWARE_DIR)/objects
 BINS      = $(SOFTWARE_DIR)/binaries
 HEX       = $(SOFTWARE_DIR)/hex_files
-TEST_NAME = simple_add
+TEST_NAME = instr_decode
 
 compile: assembler linker extract
 

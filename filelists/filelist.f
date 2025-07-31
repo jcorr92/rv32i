@@ -4,6 +4,7 @@ $SRC_DIR/pc.sv
 $SRC_DIR/register_file.sv
 $SRC_DIR/generic_memory.sv
 $SRC_DIR/imm_gen.sv
+$SRC_DIR/cpu_ctrl.sv
 $SRC_DIR/top.sv
 
 #tb

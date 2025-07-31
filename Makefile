@@ -1,5 +1,8 @@
-# Clean up generated files
 clean:
+	@if [ -z "$(VCD)" ] || [ -z "$(SIM_DIR)" ] || [ -z "$(SOFTWARE_DIR)" ]; then \
+		echo "Error: VCD, SIM_DIR, and SOFTWARE_DIR must be set"; \
+		exit 1; \
+	fi
 	rm -rf $(VCD) \
 	$(SIM_DIR)/.Xil \
 	$(SIM_DIR)/*.log \
