@@ -8,6 +8,14 @@ import rv32i_pkg::*;
         repeat (cycles)
             #(clk_period);
     endtask
+    // returns $floor(log_2(int))
+    function int log2_int(input int val);
+        int res;
+        res = 0;
+        while ((1 << res) < val) res++;
+        return res;
+    endfunction
+
 
     function automatic bit find_substring(string full, string sub);
         int i, j;
@@ -28,23 +36,36 @@ import rv32i_pkg::*;
         return 0;
     endfunction
 
-    function automatic void check_logs(string logname);
+    function automatic int create_log(string logname);
+        int logfile = $fopen(logname, "w");
+        if (!logfile) begin
+            $fatal(0,  "Could not create logfile");
+        end
+        return logfile
+    endfunction
+
+    function automatic int open_log(string logname);
+        int logfile = $fopen(logname, "r");
+        if (!logfile) begin
+            $fatal(0,  "Could not open logfile");
+        end
+        return logfile;
+    endfunction
+
+    function automatic void check_logs(string logname, string pass_token, string fail_token);
 
         string line;
         int pass = 0, fail = 0, tests;
         int x, logfile;
         shortreal ratio;
 
-        logfile = $fopen(logname, "r");
-        if (!logfile) begin
-            $fatal(0,  "Could not open logfile");
-        end
+        logfile = open_log(logname);
 
         while(!$feof(logfile)) begin
             x = $fgets(line, logfile);
-            if(find_substring(line, "PASS"))
+            if(find_substring(line, pass_token))
                 pass++;
-            else if(find_substring(line, "FAIL"))
+            else if(find_substring(line, fail_token))
                 fail++;
         end
 

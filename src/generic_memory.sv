@@ -14,50 +14,65 @@ import rv32i_pkg::*;
 )
 (
     // clk & reset
-    input wire logic                           clk,
-    input wire logic                           aresetn,
-    input wire logic [2:0]                     funct3,
+    input wire logic                   clk,
+    input wire logic                   aresetn,
+    input wire logic [2:0]             funct3,
 
-    // Preload interface (for simulation)
+    // Preload interface
     `ifdef SIMULATION
-    input wire logic                           preload_en,
+    input wire logic                   preload_en,
     input wire logic [MEM_WIDTH-1 :0]  preload_addr,
-    input wire logic [7:0]                     preload_data,
+    input wire logic [7:0]             preload_data,
     `endif
 
     // Read interface
     input  wire logic [MEM_WIDTH-1 :0] rd_addr,
-    output      logic [MLEN-1:0]               rd_data,
+    output      logic [MLEN-1:0]       rd_data,
 
     // Write interface
-    input  wire logic [MLEN-1:0]               wr_data,
+    input  wire logic [MLEN-1:0]       wr_data,
     input  wire logic [MEM_WIDTH-1 :0] wr_addr,
-    input  wire logic                          wr_en,
+    input  wire logic                  wr_en,
 
     //exception
-    output wire logic                          error
+    output wire logic                  error
 );
 
 // Byte-addressable memory array
-logic [7:0] mem_reg [0:(MEM_BYTES) - 1];
+logic [7               :0] mem_reg [0:(MEM_BYTES) - 1];
 logic [BYTES_PER_WORD-1:0] byte_lane = '0;
-// Optional memory preload from file (e.g., hex)
+logic [MEM_WIDTH-1      0] rd_base_addr, wr_base_addr;
+
+// Optional memory preload from hex file
 `ifdef SIMULATION
     initial begin
-        if(!DATA_MEM)
-            $readmemh("./../software/hex_files/instr_decode.hex", mem_reg);
+        if (!DATA_MEM) begin
+            string hexfile = "./../software/hex_files/instr_decode.hex";
+            int fd = $fopen(hexfile, "r");
+            if (fd == 0) begin
+                $fatal(1, "ERROR: Failed to open %s for instruction memory preload.", hexfile);
+            end
+            $fclose(fd);
+            $readmemh(hexfile, mem_reg);
+        end
     end
 `endif
+
 
 // Synchronous write logic
 always_ff @(posedge clk or negedge aresetn) begin
     if (!aresetn) begin
+        error <= 0;
         // do nothing for now
     end else begin
         // Memory write (only if data memory)
         if (DATA_MEM && wr_en) begin
+            // force write alignment
+            wr_base_addr = {wr_addr[MEM_WIDTH-1:WORD_ALIGN_BITS], {WORD_ALIGN_BITS{1'b0}}};
             for (int i = 0; i < BYTES_PER_WORD; i++) begin
-                mem_reg[wr_addr + i] <= wr_data[i*8 +: 8];
+                if(byte_lane[i]) begin
+                    mem_reg[wr_addr + i] <= wr_data[i*8 +: 8];
+                end else mem_reg[wr_addr + i] <= 0;
             end
         end
 
@@ -70,7 +85,7 @@ always_ff @(posedge clk or negedge aresetn) begin
     end
 end
 
-// Asynchronous read logic (little-endian)
+// Asynchronous  byte strobe & read logic (little-endian)
 always_comb begin
     rd_data = '0;
     case(funct3[1:0]):
@@ -81,7 +96,7 @@ always_comb begin
             end
         end
         2'b01: begin // halfword
-            if(rd_addr[0])
+            if(rd_addr[0] | wr_addr[0])
                 misaligned_read(rd_addr, funct3);
             else begin
                 for (int i = 0; i < BYTES_PER_WORD; i++) begin
@@ -101,13 +116,27 @@ always_comb begin
             end
         end
     endcase
+
+    // force read alignment to word/double word boundary
+    rd_base_addr = {rd_addr[MEM_WIDTH-1:WORD_ALIGN_BITS], {WORD_ALIGN_BITS{1'b0}}};
+
+    // build full word, masked by byte lanes
     for (int i = 0; i < BYTES_PER_WORD; i++) begin
         // take 8 bits ascending from 0 - i.e 7:0
-        rd_data[i*8 +: 8] = byte_lane[i] ? mem_reg[{rd_addr[MEM_WIDTH-1:WORD_ALIGN_BITS], {WORD_ALIGN_BITS{1'b0}}} + i] : 8'b0;
+        rd_data[i*8 +: 8] = byte_lane[i] ? mem_reg[base_addr + i] : 8'b0;
     end
 end
 
 task automatic misaligned_read(logic [MEM_WIDTH-1:0] addr, int f3)
     $display("ERROR: Misaligned read, read addr:%0x on funct3=%0d", addr, f3);
+    // Spawn a parallel thread to pulse error
+    fork
+        begin
+            error <= 1;
+            @(posedge clk);
+            error <= 0;
+            @(posedge clk);
+        end
+    join_none
 endtask
 endmodule
