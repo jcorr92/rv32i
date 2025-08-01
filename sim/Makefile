@@ -2,8 +2,8 @@
 SRC     = $(SRC_DIR)
 GEN_DIR = $(SIM_DIR)/gen
 IMMEDIATE_FILE = $(GEN_DIR)/immediates.list
-TB      = top/top_tb.sv
-# TB      = unit/imm_gen_tb.sv
+# TB      = top/top_tb.sv
+TB      = unit/gen_mem_tb.sv
 TB_NAME = $(basename $(notdir $(TB)))
 TB_PATH = $(TB_DIR)/$(TB)
 VCD     = $(SIM_DIR)/dump.vcd
