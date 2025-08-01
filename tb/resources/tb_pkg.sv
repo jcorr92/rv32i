@@ -16,7 +16,6 @@ import rv32i_pkg::*;
         return res;
     endfunction
 
-
     function automatic bit find_substring(string full, string sub);
         int i, j;
         int full_len = full.len();
@@ -41,7 +40,7 @@ import rv32i_pkg::*;
         if (!logfile) begin
             $fatal(0,  "Could not create logfile");
         end
-        return logfile
+        return logfile;
     endfunction
 
     function automatic int open_log(string logname);
@@ -57,7 +56,7 @@ import rv32i_pkg::*;
         string line;
         int pass = 0, fail = 0, tests;
         int x, logfile;
-        shortreal ratio;
+        real ratio;
 
         logfile = open_log(logname);
 
@@ -72,10 +71,11 @@ import rv32i_pkg::*;
         $fclose(logfile);
 
         tests = pass+fail;
-        ratio = (pass/(tests)) * 100;
+        ratio = (real'(pass) / real'(tests)) * 100.0;
 
-        $display("\n%d tests, %d tests passed, %d tests failed.\n pass ratio = %.2f\%", tests, pass, fail, ratio);
-        if(ratio == 100) begin
+
+        $display("\n%0d tests, %0d tests passed, %0d tests failed.\n pass ratio = %2f", tests, pass, fail, ratio);
+        if(ratio > 99) begin
             $display("*******************************************************************");
             $display("*                                                                 *");
             $display("*                         TEST PASSED! :)                         *");

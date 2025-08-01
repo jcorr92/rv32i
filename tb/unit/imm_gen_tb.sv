@@ -51,7 +51,7 @@ module imm_gen_tb();
         $fclose(logfile);
         $fclose(test_vectors);
 
-        check_logs(logname);
+        check_logs(logname, "PASS", "FAIL");
 
         $finish;
     end

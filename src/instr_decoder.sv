@@ -72,7 +72,7 @@ import rv32i_pkg::*;
                 memWrite   = 1'b0;
                 mem2Reg    = 2'b10; // pass pc+4 to reg file
                 regWrite   = 1'b1;
-                aluOp      = 1'b1;
+                aluCtrl    = ALU_NOP;
             end
             // R-type (Register type) Instructions
             // alu op on rs1 & rs2, save output in rd
@@ -84,7 +84,7 @@ import rv32i_pkg::*;
                 memWrite   = 1'b0;
                 mem2Reg    = 2'b00; // pass alu_out to reg file input
                 regWrite   = 1'b1;  // store alu_out in rd
-                aluOp      = 1'b1;
+                aluCtrl    = ALU_NOP;
             end
             // S-type (Store type) Instructions
             // store rs2 in memory location rs1+imm
@@ -96,7 +96,7 @@ import rv32i_pkg::*;
                 memWrite   = 1'b1; // store to dmem
                 mem2Reg    = 2'b00;
                 regWrite   = 1'b0;
-                aluOp      = 1'b1;
+                aluCtrl    = ALU_NOP;
             end
             // B-type (Branch type) Instructions
             //
@@ -108,7 +108,7 @@ import rv32i_pkg::*;
                 memWrite   = 1'b1; // store to dmem
                 mem2Reg    = 2'b00;
                 regWrite   = 1'b0;
-                aluOp      = 1'b1;
+                aluCtrl    = ALU_NOP;
             end
             default: begin
                 memRead    = 0;
@@ -119,7 +119,7 @@ import rv32i_pkg::*;
                 memWrite   = 0;
                 mem2Reg    = 0;
                 regWrite   = 0;
-                aluOp      = 0;
+                aluCtrl    = ALU_NOP;
             end
         endcase
     end

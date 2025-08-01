@@ -26,9 +26,11 @@ echo " "
 
 # Vivado stuff
 echo "  Setting up Vivado environment.."
-VERSION=2024.2
-XILINX=/tools/Xilinx
-VIVADO_DIR=$XILINX/Vivado/$VERSION
+export VERSION=2024.2
+export XILINX=/tools/Xilinx
+export VIVADO_DIR=$XILINX/Vivado/$VERSION
+export RDI_JVM_ARGS="-Xint -Dsun.java2d.opengl=false -Dprism.order=sw"
+
 echo "  VIVADO=$VIVADO_DIR/bin"
 echo "  LD_LIBRARY_PATH=$VIVADO_DIR/tps/lnx64/jre21.0.1_12/lib/server"
 source $VIVADO_DIR/settings64.sh
