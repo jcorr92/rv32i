@@ -74,7 +74,7 @@ import rv32i_pkg::*;
         ratio = (real'(pass) / real'(tests)) * 100.0;
 
 
-        $display("\n%0d tests, %0d tests passed, %0d tests failed.\n pass ratio = %2f", tests, pass, fail, ratio);
+        $display("\n%0d tests, %0d tests passed, %0d tests failed.\n pass ratio = %.2f", tests, pass, fail, ratio);
         if(ratio > 99) begin
             $display("*******************************************************************");
             $display("*                                                                 *");

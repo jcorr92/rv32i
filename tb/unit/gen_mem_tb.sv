@@ -37,7 +37,7 @@ module gen_mem_tb();
     logic [MEM_WIDTH-1 :0] wr_addr;
     logic                  wr_en;
     // Exception
-    logic                  error;
+    logic [1           :0] error;
 
     // Clock generation
     initial begin
@@ -180,9 +180,14 @@ module gen_mem_tb();
         $fdisplay(logfile, "read result: %0x", data);
     endtask
 
-    task automatic check_misalignment(input bit misaligned);
-        if (cb.error ^ misaligned)
-            $fdisplay(logfile, "FAIL: unexpected error/misalignment. error: %0d, misaligned: %0d", cb.error, misaligned);
+    task automatic check_misalignment(input bit misaligned, input bit rd_wr, output bit caught);
+        caught = 0;
+        if (cb.error[rd_wr] != misaligned)
+            $fdisplay(logfile, "FAIL: unexpected error/misalignment. error: %0d, misaligned: %0d", cb.error[rd_wr], misaligned);
+        else if ((cb.error[rd_wr] == misaligned) & misaligned) begin
+            $fdisplay(logfile, "PASS: caught misalignment. error: %0d, misaligned: %0d", cb.error[rd_wr], misaligned);
+            caught = 1;
+        end
     endtask
 
     task automatic runtime_bytemask (
@@ -237,7 +242,7 @@ module gen_mem_tb();
         logic [MLEN-1:0] rd_data = 0;
         logic [MLEN-1:0] expected_data = 0;
         logic [MLEN-1:0] rand_data = 0;
-        bit misaligned;
+        bit misaligned, rd_caught, wr_caught;
 
         rand_data = (MLEN <= 32) ? $urandom() : { $urandom(), $urandom() };
         if (force_align)
@@ -246,15 +251,19 @@ module gen_mem_tb();
         runtime_bytemask(rand_data, addr % 8, log2_int(bytes), unsigned_access,expected_data);
 
         write_mem(unsigned_access, bytes, addr, rand_data);
-        // check_misalignment(misaligned);
+        check_misalignment(misaligned, 1, rd_caught);
         read_mem(unsigned_access, bytes, addr, rd_data);
-        // check_misalignment(misaligned);
+        check_misalignment(misaligned, 0, wr_caught);
 
         // if(!misaligned) begin
             if (rd_data == expected_data)
                 $fdisplay(logfile, "PASS: Expected: %0x, Read: %0x", expected_data, rd_data);
-            else
-                $fdisplay(logfile, "FAIL: Expected: %0x, Read: %0x", expected_data, rd_data);
+            else begin
+                if((!rd_caught & !wr_caught))
+                    $fdisplay(logfile, "FAIL: Expected: %0x, Read: %0x", expected_data, rd_data);
+                else
+                    $fdisplay(logfile, "PASS: Misaligned access caught.  Expected: %0x, Read: %0x", expected_data, rd_data);
+            end
         // end
         // else begin
         //     if (rd_data == expected_data)

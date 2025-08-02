@@ -35,7 +35,7 @@ import rv32i_pkg::*;
     input  wire logic                  wr_en,
 
     //exceptions [wr_ex:rd_ex]
-    output      logic [1:0]            error
+    output      logic [1           :0] error
 );
 
     // Byte-addressable memory array
@@ -69,7 +69,7 @@ import rv32i_pkg::*;
             // do nothing for now
         end else begin
             // Memory write (only if data memory)
-            if (DATA_MEM && wr_en) begin
+            if (DATA_MEM && wr_en && !store_misaligned) begin
                 for (logic [WORD_ALIGN_BITS:0] i = 0; i < BYTES_PER_WORD; i++) begin
                     if(wr_byte_lane[i]) begin
                         mem_reg[wr_base_addr + i] <= wr_data[i*8 +: 8];
@@ -89,7 +89,6 @@ import rv32i_pkg::*;
     // Asynchronous  byte strobe & read logic (little-endian)
     always_comb begin
         rd_data   = '0;
-        error     = '0;
         rd_extend = '0;
         case(funct3[1:0])
             2'b00: begin //byte load/store
@@ -122,7 +121,7 @@ import rv32i_pkg::*;
         // build full word, 0 extend
         for (int i = 0; i < BYTES_PER_WORD; i++) begin
             // take 8 bits ascending from 0 - i.e 7:0
-            if(rd_byte_lane[i]) begin
+            if(rd_byte_lane[i] && !load_misaligned) begin
                 rd_data[rd_extend*8 +: 8] = mem_reg[rd_base_addr + i];
                 rd_extend++;
             end
@@ -148,22 +147,24 @@ import rv32i_pkg::*;
 
     // exception logic
     always_comb begin
-    load_misaligned = 1'b0;
-    store_misaligned = 1'b0;
+        load_misaligned = 1'b0;
+        store_misaligned = 1'b0;
 
-    // Load misalignment check
-    case (funct3[1:0])
-        2'b01: if (rd_addr[0] != 0) load_misaligned = 1'b1;
-        2'b10: if (rd_addr[1:0] != 0) load_misaligned = 1'b1;
-        default: load_misaligned = 1'b0; // byte accesses always aligned
-    endcase
+        // Load misalignment check
+        case (funct3[1:0])
+            2'b01: if (rd_addr[0] != 0) load_misaligned = 1'b1;
+            2'b10: if (rd_addr[1:0] != 0) load_misaligned = 1'b1;
+            default: load_misaligned = 1'b0; // byte accesses always aligned
+        endcase
 
-    // Store misalignment check
-    case (funct3[1:0])
-        2'b01: if (wr_addr[0] != 0) store_misaligned = 1'b1;
-        2'b10: if (wr_addr[1:0] != 0) store_misaligned = 1'b1;
-        default: store_misaligned = 1'b0; // byte accesses always aligned
-    endcase
-end
+        // Store misalignment check
+        case (funct3[1:0])
+            2'b01: if (wr_addr[0] != 0) store_misaligned = 1'b1;
+            2'b10: if (wr_addr[1:0] != 0) store_misaligned = 1'b1;
+            default: store_misaligned = 1'b0; // byte accesses always aligned
+        endcase
+        // Combine into error output: [wr_ex:rd_ex]
+        error = {store_misaligned, load_misaligned};
+    end
 
 endmodule
