@@ -137,11 +137,11 @@ import rv32i_pkg::*;
             default: sExt_data = rd_data; // fallback
         endcase
 
-        // select sign or zero extend
+        // select zero (1) or sign (0) extend
         if(funct3[2])
-            rd_data = sExt_data;
-        else
             rd_data = rd_data;
+        else
+            rd_data = sExt_data;
 
     end
 

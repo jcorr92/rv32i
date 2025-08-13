@@ -22,7 +22,7 @@ wire [REG_ADDR_WIDTH-1:0] rs1_addr, rs2_addr, rd_addr;
 wire zero;
 
 // Control signals
-logic memRead, aluSrc, jump, branch, branchCtrl, memWrite, regWrite, aluOp;
+logic memRead, aluSrc, jump, branch, branchCtrl, memWrite, regWrite;
 logic [1:0] mem2Reg;
 logic [3:0] aluCtrl;
 // Registers
@@ -118,17 +118,17 @@ generic_memory
     .error   ()
 );
 
-// // writeback mux
+// writeback mux
 assign reg_wData = (mem2Reg == 2'b00) ? alu_out     :
                    (mem2Reg == 2'b01) ? dmem_out    :
                    (mem2Reg == 2'b10) ? pc_plus_4   :
                    32'bx; // default / don't care
-// controller
+// decoder
 instr_decoder u_instr_decoder(
     .instr      (instr),
     .memRead    (memRead),
     .aluSrc     (aluSrc),
-    .aluOp      (aluOp),
+    .aluCtrl    (aluCtrl),
     .jump       (jump),
     .branchCtrl (branchCtrl),
     .memWrite   (memWrite),

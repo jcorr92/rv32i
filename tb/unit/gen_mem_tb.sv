@@ -1,6 +1,5 @@
 import rv32i_pkg::*;
 import tb_pkg::*;
-
 module gen_mem_tb();
 
     // DUT PARAMETERS
@@ -30,14 +29,14 @@ module gen_mem_tb();
 `endif
 
     // Read interface
-    logic [MEM_WIDTH-1 :0] rd_addr;
-    logic [MLEN-1:0]       rd_data;
+    logic [MEM_WIDTH-1 :0]  rd_addr;
+    logic [MLEN-1:0]        rd_data;
     // Write interface
-    logic [MLEN-1:0]       wr_data;
-    logic [MEM_WIDTH-1 :0] wr_addr;
-    logic                  wr_en;
+    logic [MLEN-1:0]        wr_data;
+    logic [MEM_WIDTH-1 :0]  wr_addr;
+    logic                   wr_en;
     // Exception
-    logic [1           :0] error;
+    logic [1           :0]  error;
 
     // Clock generation
     initial begin
@@ -146,10 +145,11 @@ module gen_mem_tb();
             $fdisplay(logfile,"ERROR: ILLEGAL ACCESS: %0d bytes requested not power of 2", bytes);
 
         // Drive signals through clocking block
-        cb.funct3 <= {unsigned_access, log2_int(bytes)};
-        cb.wr_addr <= addr;
-        cb.wr_data <= data;
-        cb.wr_en <= 1;
+        cb.funct3[1:0] <= log2_int(bytes);
+        cb.funct3[2]   <= unsigned_access;
+        cb.wr_addr     <= addr;
+        cb.wr_data     <= data;
+        cb.wr_en       <= 1;
         $fdisplay(logfile, "writing %0d bytes to addr: %0x - data: %0x", bytes, addr, data);
 
         ##1; // 1 clock
@@ -172,8 +172,9 @@ module gen_mem_tb();
         $fdisplay(logfile, "reading %0d bytes from addr: %0x", bytes, addr);
 
         // Drive read
-        cb.funct3 <= {unsigned_access, log2_int(bytes)};
-        cb.rd_addr <= addr;
+        cb.funct3[1:0] <= log2_int(bytes);
+        cb.funct3[2]   <= unsigned_access;
+        cb.rd_addr     <= addr;
 
         ##1; // wait for read
         data = cb.rd_data;
@@ -229,9 +230,16 @@ module gen_mem_tb();
             2'b11: begin
                 for (i = 0; i < BYTES_PER_WORD; i++) begin
                     data_masked[j*8 +: 8] = data_in[i*8 +: 8];
+                    j++;
                 end
             end
         endcase
+        if(!unsigned_access)begin
+            $fdisplay(logfile,"sign extending with sign bit %b", data_masked[(j*8)-1]);
+            for(int k = (j*8) ; k < MLEN ; k++) begin
+                data_masked[k] = data_masked[(j*8)-1];
+            end
+        end
     endtask
 
     task automatic mem_rw_test(input int addr, input bit force_align);
@@ -255,22 +263,14 @@ module gen_mem_tb();
         read_mem(unsigned_access, bytes, addr, rd_data);
         check_misalignment(misaligned, 0, wr_caught);
 
-        // if(!misaligned) begin
-            if (rd_data == expected_data)
-                $fdisplay(logfile, "PASS: Expected: %0x, Read: %0x", expected_data, rd_data);
-            else begin
-                if((!rd_caught & !wr_caught))
-                    $fdisplay(logfile, "FAIL: Expected: %0x, Read: %0x", expected_data, rd_data);
-                else
-                    $fdisplay(logfile, "PASS: Misaligned access caught.  Expected: %0x, Read: %0x", expected_data, rd_data);
-            end
-        // end
-        // else begin
-        //     if (rd_data == expected_data)
-                // $fdisplay(logfile, "FAIL: Misaligned access shoud fail! \nExpected: %0x, Read: %0x", expected_data, rd_data);
-            // else
-                // $fdisplay(logfile, "PASS: Misaligned access failed as expected :) \nExpected: %0x, Read: %0x", expected_data, rd_data);
-        // end
+        if (rd_data == expected_data)
+            $fdisplay(logfile, "PASS: Unsigned: %0d - Expected: %0x, Read: %0x", unsigned_access, expected_data, rd_data);
+        else begin
+            if((!rd_caught & !wr_caught))
+                $fdisplay(logfile, "FAIL: Unsigned: %0d - Expected: %0x, Read: %0x", unsigned_access, expected_data, rd_data);
+            else
+                $fdisplay(logfile, "PASS: Unsigned: %0d - Misaligned access caught.  Expected: %0x, Read: %0x", unsigned_access, expected_data, rd_data);
+        end
     endtask
 
 endmodule
